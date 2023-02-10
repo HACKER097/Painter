@@ -4,6 +4,12 @@ import random
 import heapq
 import time
 
+TIME = int(input("TIME TO RUN (min): "))
+GENERATIONS = int(input("GENERATIONS PER LINE: "))
+POPULATION = int(input("POPULATION SIZE: "))
+SAVE = int(input("SAVE EVERY Nth IMAGE: "))
+IMAGE_NAME = str(input("IMAGE NAME: "))
+
 def addLine(image, start, end, color, thickness, alpha):
 	overlay = image.copy()
 
@@ -65,28 +71,28 @@ def getNextGen(heap, original_image, blank_image):
 	return heap
 
 
-original_image = cv.imread("mona.jpg")
+original_image = cv.imread(IMAGE_NAME)
 h, w, _ = original_image.shape
 blank_image = np.zeros((h, w, 3), np.uint8)
 
 avg_color_per_row = np.sum(cv.bitwise_not(original_image), axis=0)
 avg_color = np.sum(avg_color_per_row, axis=0)
 
-stop = time.time() + 60 * 30
+stop = time.time() + 60 * TIME
 
-for j in range(100000):
+for j in range(1000000):
 	heap = []
-	for i in range(100):
+	for i in range(POPULATION):
 		random_line = getRandomLine(blank_image)
 		score = getScore(original_image, addLine(blank_image, *random_line))
 		heapq.heappush(heap, (score, random_line))
 
-	for i in range(10):
-		heap = heapq.nsmallest(50, heap)
+	for i in range(GENERATIONS):
+		heap = heapq.nsmallest(POPULATION//2, heap)
 		heap = getNextGen(heap, original_image, blank_image)
 
-		if i%10==0:
-			cv.imwrite(f'evo/GENERATION-{str(j).zfill(4)}{str(i).zfill(4)}.jpg', addLine(blank_image, *heap[0][1]))
+		if i%SAVE==0:
+			cv.imwrite(f'GENERATION-{str(j).zfill(4)}{str(i).zfill(4)}.jpg', addLine(blank_image, *heap[0][1]))
 
 		if time.time() >= stop:
 			print(heap[0][0])
@@ -101,6 +107,7 @@ for j in range(100000):
 
 	if j%10000 == 0:
 		cv.imwrite(f'evo/GENERATION-{str(j).zfill(4)}.jpg', final_image)
+
 """
 	if j%1==0:
 
