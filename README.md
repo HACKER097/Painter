@@ -1,5 +1,5 @@
 # Painter
-Paints an image with lines.
+Paints an image with vector lines using evolution.
 
 # Examples
 
